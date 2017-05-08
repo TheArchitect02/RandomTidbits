@@ -1,0 +1,24 @@
+make global start
+
+claim 64, address 0x004 to 0x00F
+
+create ax in 0x004
+mov ax to 0x007
+string "Starting!" belongs 0x00F
+
+exception 0x000FA7 belongs 0xFFFFFFFF: "Claimed memory was bigger than available!"
+exception return true then stop
+exception return false then cont
+ac = access cyl 1023 for byte 0x0034
+exception 0x000174 belongs 0xffffffff: "Bootable operating system not found. If you are using Linux, please set the BIOS settings."
+access bios-cap 34 for byte 1
+exception return 1 then cont-lin
+exception return 0 then cont-win
+for cont-lin then access cyl 1023 for byte 0x008
+for cont-win then go back ac
+kernel sleep
+loop next
+exception 0x0004A8 belongs 0xFFFFFFFA: "Kernel panic was intiated by operating system! Rebooting..."
+exception return true then reboot 10
+exception return false then cont
+kernel sleep
